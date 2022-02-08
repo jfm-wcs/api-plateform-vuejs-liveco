@@ -89,9 +89,6 @@ export default {
   methods: {
     fetchTodoLists: function () {
       this.todoLists = DEFAULT_LISTS;
-      /* this.$http.get(this.$domain + "/todo_lists").then((response) => {
-        this.todoLists = response.data;
-      }); */
     },
     addList: function () {
       const newList = {
@@ -105,14 +102,6 @@ export default {
         this.todoLists.push(newList);
         this.newListName = "";
       }
-      /* const $this = this;
-      this.$http
-        .post(this.$domain + "/todo_lists", {
-          name: $this.newListName,
-        })
-        .then(() => {
-          this.fetchTodoLists();
-        }); */
     },
     removeList: function (listId) {
       this.todoLists.map((list, index) => {
@@ -120,9 +109,6 @@ export default {
           this.todoLists.splice(index, 1);
         }
       });
-      /* this.$http.delete(this.$domain + "/todo_lists/" + listId).then(() => {
-        this.fetchTodoLists();
-      }); */
     },
     addItem(listId) {
       const name = this.$refs["newItem" + listId][0].$refs.input.value;
