@@ -62,21 +62,6 @@
 </template>
 
 <script>
-const DEFAULT_LISTS = [
-  {
-    id: 1,
-    name: "List #1",
-    createdAt: "2022-02-06T12:54:18+00:00",
-    isActive: true,
-    todoItems: [
-      {
-        id: 1,
-        title: "item 1",
-        isDone: false,
-      },
-    ],
-  },
-];
 
 export default {
   name: "App",
@@ -88,47 +73,43 @@ export default {
   },
   methods: {
     fetchTodoLists: function () {
-      this.todoLists = DEFAULT_LISTS;
+      const $this = this;
+      this.$http.get(this.$domain + "/todo_lists")
+      .then((response) => {
+        $this.todoLists = response.data;
+      })
     },
     addList: function () {
-      const newList = {
-        id: this.todoLists.length ? this.todoLists[this.todoLists.length - 1].id + 1 : 1,
-        name: this.newListName,
-        createdAt: new Date(),
-        isActive: true,
-        todoItems: [],
-      };
-      if (this.newListName) {
-        this.todoLists.push(newList);
-        this.newListName = "";
-      }
+      const $this = this;
+      this.$http
+          .post(this.$domain + "/todo_lists", {
+            name: $this.newListName,
+          })
+          .then(() => {
+            this.fetchTodoLists();
+          });
     },
     removeList: function (listId) {
-      this.todoLists.map((list, index) => {
-        if (list.id ===  listId) {
-          this.todoLists.splice(index, 1);
-        }
+      this.$http.delete(this.$domain + "/todo_lists/" + listId).then(() => {
+        this.fetchTodoLists();
       });
     },
     addItem(listId) {
       const name = this.$refs["newItem" + listId][0].$refs.input.value;
       if (name) {
-        const newItem = {
-          title: name,
-          isDone: false,
-        };
-        this.todoLists.map((list) => {
-          if (list.id === listId) {
-            newItem.id = list.todoItems.length
-              ? list.todoItems[list.todoItems.length - 1].id + 1
-              : 1;
-            list.todoItems.push(newItem);
-          }
-        });
+        this.$http
+            .post(this.$domain + "/todo_items", {
+              title: name,
+              isDone: false,
+              todoList: '/api/todo_lists/' + listId
+            })
+            .then(() => {
+              this.fetchTodoLists();
+              this.$nextTick(() => {
+                this.$refs["newItem" + listId][0].$props.value = "";
+              })
+            });
       }
-      this.$nextTick(() => {
-        this.$refs["newItem" + listId][0].$props.value = "";
-      })
     },
   },
   created: function () {
